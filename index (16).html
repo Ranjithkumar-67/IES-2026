@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>IES Civil Engineering PYQ Practice (2018–2025)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0b132b;
+    color: #eaeaea;
+}
+
+header {
+    padding: 20px;
+    text-align: center;
+    background: #1c2541;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 26px;
+}
+
+header p {
+    margin: 6px 0 0;
+    color: #9bb1ff;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+select, button {
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+}
+
+select {
+    background: #3a506b;
+    color: #eaeaea;
+    cursor: pointer;
+}
+
+button {
+    background: #5bc0be;
+    color: #000;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+button:hover {
+    background: #4da5a3;
+    transform: translateY(-2px);
+}
+
+button.alt {
+    background: #f6ae2d;
+}
+
+button.alt:hover {
+    background: #e09a1a;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.card {
+    background: #1c2541;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,.4);
+}
+
+.qmeta {
+    font-size: 13px;
+    color: #ffd166;
+    margin-bottom: 8px;
+}
+
+.question {
+    font-size: 18px;
+    margin: 12px 0;
+    line-height: 1.6;
+}
+
+.options {
+    margin-top: 16px;
+}
+
+.options label {
+    display: block;
+    margin: 8px 0;
+    padding: 12px;
+    border-radius: 6px;
+    background: #3a506b;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.options label:hover {
+    background: #5bc0be;
+    color: #000;
+}
+
+.options label.selected {
+    background: #5bc0be;
+    color: #000;
+    font-weight: 600;
+}
+
+.result {
+    display: none;
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 6px;
+}
+
+.correct {
+    background: rgba(46,196,182,.25);
+    border-left: 4px solid #2ec4b6;
+}
+
+.incorrect {
+    background: rgba(239,71,111,.25);
+    border-left: 4px solid #ef476f;
+}
+
+.why {
+    font-size: 14px;
+    margin-top: 8px;
+    color: #e0fbfc;
+    line-height: 1.5;
+}
+
+.trick {
+    font-size: 13px;
+    margin-top: 6px;
+    color: #ffd166;
+    line-height: 1.5;
+}
+
+.stats {
+    text-align: center;
+    margin: 20px 0;
+    padding: 15px;
+    background: #1c2541;
+    border-radius: 8px;
+}
+
+.stats span {
+    margin: 0 15px;
+    font-size: 15px;
+}
+
+footer {
+    text-align: center;
+    padding: 15px;
+    font-size: 12px;
+    color: #aaa;
+}
+
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 20px;
+    }
+    .controls {
+        flex-direction: column;
+    }
+    select, button {
+        width: 100%;
+    }
+    .stats span {
+        display: block;
+        margin: 5px 0;
+    }
+}
+</style>
+</head>
+<body>
+<header>
+<h1>IES / ESE Civil Engineering – PYQ Practice</h1>
+<p>Combined pattern from UPSC IES Prelims 2018–2025 | RCC • Steel • Seismic • SOM • Geotech • FM • IRC</p>
+</header>
+
+<div class="container">
+<div class="controls">
+<select id="topic">
+<option value="ALL">All Topics</option>
+<option value="RCC">RCC (IS 456)</option>
+<option value="STEEL">Steel (IS 800)</option>
+<option value="SEISMIC">Seismic (IS 1893)</option>
+<option value="SOM">Structural Analysis</option>
+<option value="GEOTECH">Geotechnical</option>
+<option value="FM">Fluid Mechanics</option>
+<option value="IRC">Highways (IRC)</option>
+</select>
+<button id="nextBtn">Next Question</button>
+<button class="alt" id="showBtn">Show Answer</button>
+<button id="resetBtn">Reset Stats</button>
+</div>
+
+<div class="stats" id="stats">
+<span>📊 Attempted: <strong id="attempted">0</strong></span>
+<span>✅ Correct: <strong id="correct">0</strong></span>
+<span>❌ Wrong: <strong id="wrong">0</strong></span>
+<span>📈 Accuracy: <strong id="accuracy">0%</strong></span>
+</div>
+
+<div class="card">
+<div class="qmeta" id="qmeta">Ready to start! Click "Next Question"</div>
+<div class="question" id="qtext">Welcome! Select a topic and click "Next Question" to begin your practice session.</div>
+<div class="options" id="opts"></div>
+<div class="result" id="res"></div>
+</div>
+</div>
+
+<footer>
+Top‑level UPSC‑pattern practice • Built for last‑day Prelims revision • Total Questions: <span id="totalQ">0</span>
+</footer>
+
+<script>
+(function() {
+    'use strict';
+
+    // Question bank
+    const Q = [];
+    let id = 1;
+    
+    function add(topic, q, opts, ans, why, trick) {
+        Q.push({id: id++, topic: topic, q: q, opts: opts, ans: ans, why: why, trick: trick});
+    }
+
+    // RCC Questions (30)
+    const RCC_Q = [
+        ['RCC', 'As per IS 456, the maximum depth of neutral axis (xu,max) for Fe 415 steel is:', ['0.46 d', '0.48 d', '0.50 d', '0.53 d'], 1, 'Table 2 of IS 456 specifies xu,max = 0.48d for Fe 415.', 'Fe250 value 0.53d is common trap.'],
+        ['RCC', 'Minimum grade of concrete recommended for RCC work as per IS 456 is:', ['M15', 'M20', 'M25', 'M30'], 1, 'Clause 6.1 specifies M20 as minimum grade for RCC.', 'M15 allowed only for PCC.'],
+        ['RCC', 'Maximum spacing of main tensile reinforcement in slabs as per IS 456 is:', ['3d', '300 mm', '5d', '450 mm'], 1, 'Clause 26.3.3 limits spacing to 3d or 300 mm whichever is smaller.', 'UPSC gives only one option correct.'],
+        ['RCC', 'Minimum tensile reinforcement in beams as per IS 456 is:', ['0.85bd/fy', '0.87fy/As', '0.85fy/bd', '0.13%'], 0, 'Clause 26.5.1 gives As,min = 0.85bd/fy.', '0.13% is slab value.'],
+        ['RCC', 'Partial safety factor for limit state of collapse in flexure as per IS 456 is:', ['1.2', '1.5', '1.0', '1.15'], 1, 'IS 456 recommends γf = 1.5 for DL+LL.', '1.2 is serviceability.'],
+        ['RCC', 'Modular ratio used in working stress method is:', ['280/σcbc', 'Es/Ec', 'm=280/(3σcbc)', 'm=13'], 2, 'IS 456 gives m = 280/(3σcbc).', 'Old exam favourite.'],
+        ['RCC', 'Effective span of simply supported beam is taken as:', ['Clear span', 'Centre-to-centre', 'Clear span + effective depth', 'Least of three'], 3, 'Least of clear span, c/c, clear+depth.', 'Conceptual clause-based.'],
+        ['RCC', 'For Fe 500 steel, xu,max/d value is approximately:', ['0.48', '0.46', '0.44', '0.53'], 2, 'Higher grade steel has lower xu,max.', 'Trend-based elimination.'],
+        ['RCC', 'Maximum permissible shear stress in concrete depends on:', ['Grade of steel', 'Grade of concrete', 'Span', 'Depth'], 1, 'τc,max is function of concrete grade only.', 'Steel is distractor.'],
+        ['RCC', 'Development length is directly proportional to:', ['Bar diameter', 'Concrete strength', 'Bond stress', 'Load'], 0, 'Ld ∝ φσs/(τbd).', 'Formula recall.'],
+        ['RCC', 'Minimum cover to main reinforcement in beams as per IS 456 is:', ['20 mm', '25 mm', '30 mm', '40 mm'], 1, 'Clause 26.4 specifies 25 mm for beams.', 'Slab cover trap = 20 mm.'],
+        ['RCC', 'For limit state design, strain in concrete at extreme compression fibre is taken as:', ['0.002', '0.003', '0.0035', '0.004'], 2, 'IS 456 assumes 0.0035 at collapse.', 'WSM value confusion.'],
+        ['RCC', 'Minimum thickness of slab to control deflection depends mainly on:', ['Span', 'Grade of concrete', 'Percentage steel', 'All of these'], 3, 'Deflection control depends on span/depth and steel %.', 'Single-factor trap.'],
+        ['RCC', 'Design bond stress in limit state method depends on:', ['Concrete grade', 'Steel grade', 'Bar diameter', 'Type of loading'], 0, 'τbd depends only on concrete grade.', 'Steel grade confusion.'],
+        ['RCC', 'Curtailment of tension reinforcement in beams is permitted when:', ['Shear is zero', 'Moment is zero', 'Development length is satisfied', 'Neutral axis shifts'], 2, 'Ld must be satisfied beyond cutoff point.', 'Conceptual safety check.'],
+        ['RCC', 'For slabs, minimum reinforcement percentage as per IS 456 is:', ['0.12%', '0.15%', '0.2%', '0.3%'], 0, '0.12% for HYSD bars.', 'MS bar value = 0.15%.'],
+        ['RCC', 'Nominal shear stress calculation in beams uses:', ['Gross area', 'Effective depth × width', 'Total depth × width', 'Transformed section'], 1, 'τv = Vu/(bd).', 'Gross area trap.'],
+        ['RCC', 'Maximum diameter of bar for use in slab as per IS 456 is:', ['D/6', 'D/8', 'D/10', '20 mm'], 1, 'Clause limits bar size to D/8.', 'Beam limit confusion.'],
+        ['RCC', 'Torsion reinforcement consists of:', ['Longitudinal bars only', 'Stirrups only', 'Both longitudinal and stirrups', 'Spirals'], 2, 'Torsion requires closed stirrups + longitudinal bars.', 'Single type trap.'],
+        ['RCC', 'In doubly reinforced beams, compression steel is provided when:', ['Depth is limited', 'Moment is high', 'Both A and B', 'Shear is high'], 2, 'When Mu > Mu,lim due to depth or moment.', 'Single reason trap.'],
+        ['RCC', 'Spacing of stirrups in beams near supports is:', ['Maximum', 'Minimum', 'Constant', 'Zero'], 1, 'High shear near supports requires close spacing.', 'Uniform spacing trap.'],
+        ['RCC', 'Design shear strength of concrete increases with:', ['Grade of concrete', 'Percentage tension steel', 'Both A and B', 'Beam depth'], 2, 'τc depends on fck and pt%.', 'Single-factor trap.'],
+        ['RCC', 'Anchorage value of standard 90° hook is:', ['4φ', '8φ', '12φ', '16φ'], 3, 'IS 456 specifies 16φ for 90° bend.', 'Smaller values trap.'],
+        ['RCC', 'Flanged beam is designed as T-beam when:', ['Slab in tension', 'Slab in compression', 'Beam isolated', 'Continuous beam'], 1, 'Flange effective when in compression zone.', 'Tension zone trap.'],
+        ['RCC', 'Effective width of flange in T-beam depends on:', ['Beam span', 'Flange thickness', 'Web width', 'All of these'], 3, 'Effective width is function of all three.', 'Single parameter trap.'],
+        ['RCC', 'Two-way slab is supported on:', ['Two edges', 'Four edges', 'All edges with ly/lx < 2', 'Columns only'], 2, 'Two-way action when aspect ratio < 2.', 'Edge count trap.'],
+        ['RCC', 'In one-way slab, main reinforcement is provided:', ['Along short span', 'Along long span', 'In both directions', 'At corners'], 0, 'Main steel in short span direction.', 'Long span trap.'],
+        ['RCC', 'Distribution steel in one-way slab is provided to resist:', ['Bending moment', 'Temperature and shrinkage', 'Shear', 'Torsion'], 1, 'Secondary reinforcement for temperature effects.', 'Bending trap.'],
+        ['RCC', 'Maximum aggregate size for RCC work should not exceed:', ['1/4 of minimum member dimension', '1/5 of minimum cover', 'Smaller of above two', '40 mm'], 2, 'Clause gives both limits - smaller governs.', 'Single limit trap.'],
+        ['RCC', 'Concrete cube strength is approximately what % of cylinder strength?', ['80%', '100%', '125%', '150%'], 2, 'Cube strength ≈ 1.25 × cylinder strength.', 'Equal value trap.']
+    ];
+
+    // STEEL Questions (30)
+    const STEEL_Q = [
+        ['STEEL', 'As per IS 800, partial safety factor for material strength is:', ['1.0', '1.1', '1.25', '1.5'], 1, 'γm0 = 1.1 for resistance governed by yielding.', 'RCC value confusion.'],
+        ['STEEL', 'Yield stress of Fe 410 grade steel is:', ['250 MPa', '410 MPa', '330 MPa', '450 MPa'], 0, 'Fe 410 has fy = 250 MPa (grade vs yield trap).', 'Grade number trap.'],
+        ['STEEL', 'Design compressive strength of steel as per IS 800 is:', ['fy', 'fy/γm0', '0.87fy', 'fy/1.5'], 1, 'Design strength = fy/γm0.', 'Concrete formula confusion.'],
+        ['STEEL', 'Effective length of a column depends on:', ['End conditions', 'Length', 'Both A and B', 'Load'], 2, 'KL depends on restraint and actual length.', 'Single factor trap.'],
+        ['STEEL', 'Maximum slenderness ratio for tension member is:', ['180', '250', '300', '400'], 3, 'Clause specifies λ ≤ 400 for tension members.', 'Compression value trap.'],
+        ['STEEL', 'Lacing system in built-up column resists:', ['Axial force', 'Shear force', 'Bending moment', 'Torsion'], 1, 'Lacing primarily resists transverse shear.', 'Axial trap.'],
+        ['STEEL', 'Minimum pitch of rivets should not be less than:', ['2d', '2.5d', '3d', '4d'], 1, 'IS 800 specifies minimum pitch = 2.5d.', 'Bolt spacing confusion.'],
+        ['STEEL', 'Block shear failure involves:', ['Tension rupture only', 'Shear yielding only', 'Combination of shear and tension', 'Bearing failure'], 2, 'Block shear has both shear and tension components.', 'Single mode trap.'],
+        ['STEEL', 'Net sectional area of tension member with staggered holes is:', ['Gross - hole area', 'Gross - net path', 'Minimum net section', 'Gross area'], 2, 'Critical section along staggered path.', 'Direct deduction trap.'],
+        ['STEEL', 'Bearing strength of bolt depends on:', ['Bolt diameter', 'Plate thickness', 'Bolt grade', 'All of these'], 3, 'Bearing capacity function of d, t, and fu.', 'Single parameter trap.'],
+        ['STEEL', 'In tension members, net area is multiplied by factor:', ['0.9', '1.0', '1.1', '0.85'], 0, 'Net effective area = 0.9 × net area for angles.', 'Full area trap.'],
+        ['STEEL', 'Laterally unsupported beam fails by:', ['Local buckling', 'Lateral-torsional buckling', 'Yielding', 'Shear'], 1, 'LTB is critical for long unsupported beams.', 'Local buckling trap.'],
+        ['STEEL', 'Plastic section modulus is denoted by:', ['Z', 'S', 'Zp', 'I/y'], 2, 'Plastic modulus symbol is Zp.', 'Elastic modulus trap.'],
+        ['STEEL', 'Shape factor for rectangular section is:', ['1.0', '1.5', '2.0', '1.12'], 1, 'Plastic/elastic modulus ratio = 1.5.', 'Circular section value trap.'],
+        ['STEEL', 'Effective length factor K for fixed-fixed column is:', ['0.5', '0.65', '1.0', '2.0'], 1, 'IS 800 recommends K = 0.65 for fixed-fixed.', 'Theoretical value trap.'],
+        ['STEEL', 'Critical slenderness ratio separating elastic and inelastic buckling is approximately:', ['λ = 100', 'λ = 150', 'λ = 200', 'λ = 250'], 0, 'Transition around λ = 100 for typical steel.', 'Random value trap.'],
+        ['STEEL', 'Gusset plate in truss connections primarily resists:', ['Axial force', 'Shear', 'Moment', 'All of these'], 3, 'Gusset transfers combined forces.', 'Single force trap.'],
+        ['STEEL', 'Minimum edge distance for bolt hole from plate edge is:', ['1.5d', '1.7d', '2.0d', '2.5d'], 0, 'Clause specifies ≥ 1.5d for sheared edge.', 'Larger value trap.'],
+        ['STEEL', 'High strength friction grip (HSFG) bolts work on principle of:', ['Bearing', 'Friction', 'Shear', 'Tension'], 1, 'HSFG bolts rely on friction between plates.', 'Bearing trap.'],
+        ['STEEL', 'Slip factor for HSFG bolts is approximately:', ['0.2', '0.35', '0.55', '0.75'], 2, 'Typical μ ≈ 0.55 for clean surfaces.', 'Low value trap.'],
+        ['STEEL', 'Web crippling occurs due to:', ['Axial compression', 'Concentrated load', 'Shear', 'Bending'], 1, 'Local crushing under concentrated loads.', 'Shear trap.'],
+        ['STEEL', 'Stiffeners are provided in plate girders to prevent:', ['Web buckling', 'Flange buckling', 'Lateral buckling', 'All of these'], 0, 'Vertical stiffeners prevent web shear buckling.', 'Flange trap.'],
+        ['STEEL', 'Depth-to-thickness ratio of web to avoid buckling is limited by:', ['d/tw ≤ 67ε', 'd/tw ≤ 85ε', 'd/tw ≤ 200', 'd/tw ≤ 100'], 0, 'IS 800 plastic design limit.', 'Random value trap.'],
+        ['STEEL', 'Effective throat thickness of fillet weld is:', ['0.5 × leg size', '0.7 × leg size', '0.85 × leg size', 'Equal to leg size'], 1, 'Effective throat = 0.7s for equal leg.', 'Full size trap.'],
+        ['STEEL', 'Strength of fillet weld depends on:', ['Throat thickness', 'Weld length', 'Electrode strength', 'All of these'], 3, 'Weld strength is function of all parameters.', 'Single factor trap.'],
+        ['STEEL', 'Minimum size of fillet weld for 10 mm plate is:', ['3 mm', '4 mm', '5 mm', '6 mm'], 0, 'IS 800 specifies minimum size based on thickness.', 'Equal to plate trap.'],
+        ['STEEL', 'Eccentric connection in bracket/seat causes:', ['Direct shear only', 'Direct shear + torsion', 'Bending only', 'Axial force'], 1, 'Eccentricity produces torsional moment.', 'Shear-only trap.'],
+        ['STEEL', 'Prying force in bolted connection occurs in:', ['Lap joint', 'Butt joint', 'T-stub connection', 'Shear connection'], 2, 'Prying action in T-stubs and end plates.', 'Simple joint trap.'],
+        ['STEEL', 'Column base plate distributes load to:', ['Concrete foundation', 'Anchor bolts', 'Grout', 'All of these'], 0, 'Base plate spreads load on concrete.', 'Bolt load trap.'],
+        ['STEEL', 'Permissible tensile stress in steel as per IS 800 working stress method is:', ['0.6fy', '0.66fy', '0.75fy', 'fy'], 0, 'WSM allows 0.6fy in tension.', 'Higher value trap.']
+    ];
+
+    // SEISMIC Questions (25)
+    const SEISMIC_Q = [
+        ['SEISMIC', 'India is divided into how many seismic zones as per IS 1893?', ['3', '4', '5', '6'], 1, 'IS 1893 has 4 seismic zones (II, III, IV, V).', 'Old 5-zone trap.'],
+        ['SEISMIC', 'Highest seismic zone in India is:', ['Zone III', 'Zone IV', 'Zone V', 'Zone VI'], 2, 'Zone V represents highest seismicity.', 'Zone IV trap.'],
+        ['SEISMIC', 'Zone factor Z for Zone V is:', ['0.10', '0.16', '0.24', '0.36'], 3, 'Z = 0.36 for Zone V.', 'Lower zone value trap.'],
+        ['SEISMIC', 'Importance factor I for hospital buildings is:', ['1.0', '1.2', '1.5', '2.0'], 2, 'Important structures have I = 1.5.', 'Normal building trap.'],
+        ['SEISMIC', 'Response reduction factor R for ordinary RC moment frame is:', ['3', '5', '3.5', '4.5'], 0, 'OMRF has R = 3.', 'SMRF confusion.'],
+        ['SEISMIC', 'Response reduction factor for special RC moment frame is:', ['3', '5', '4', '4.5'], 1, 'SMRF has R = 5 (ductile design).', 'Lower value trap.'],
+        ['SEISMIC', 'Fundamental natural period of building depends on:', ['Height', 'Base dimensions', 'Mass', 'All of these'], 3, 'Period is function of height, stiffness, mass.', 'Single parameter trap.'],
+        ['SEISMIC', 'Approximate fundamental period formula for RC frame building is:', ['Ta = 0.075h^0.75', 'Ta = 0.09h/√d', 'Ta = 0.1N', 'All of above'], 0, 'IS 1893 empirical formula for RC frames.', 'Steel frame confusion.'],
+        ['SEISMIC', 'Design horizontal seismic coefficient (Ah) is proportional to:', ['Zone factor Z', 'Importance factor I', 'Response reduction factor R', 'All of these'], 3, 'Ah = (Z/2)(I/R)(Sa/g).', 'Single factor trap.'],
+        ['SEISMIC', 'Spectral acceleration coefficient Sa/g depends on:', ['Soil type', 'Time period', 'Both A and B', 'Zone only'], 2, 'Response spectrum varies with T and soil.', 'Zone-only trap.'],
+        ['SEISMIC', 'Soft storey in building is defined when stiffness is less than:', ['50% of storey above', '60% of storey above', '70% of storey above', '80% of storey above'], 2, 'Soft storey if stiffness < 70% of above.', '50% trap.'],
+        ['SEISMIC', 'Weak storey is when lateral strength is less than:', ['70% of above', '80% of above', '85% of above', '90% of above'], 1, 'Weak storey if strength < 80% of above.', 'Soft storey confusion.'],
+        ['SEISMIC', 'Ductility in structures is achieved by:', ['Brittle materials', 'Closely spaced ties', 'High strength concrete', 'Low reinforcement'], 1, 'Confinement by ties enhances ductility.', 'Material strength trap.'],
+        ['SEISMIC', 'Torsional provisions are mandatory when:', ['Plan is symmetric', 'Plan is unsymmetric', 'Eccentricity exceeds 5%', 'Always required'], 2, 'Torsion considered when eccentricity > 0.05b.', 'Asymmetry-only trap.'],
+        ['SEISMIC', 'Minimum eccentricity to be considered in buildings is:', ['0.05 times floor dimension', '0.1 times floor dimension', 'Zero', '0.15 times dimension'], 0, 'Accidental eccentricity = 0.05b.', 'Larger value trap.'],
+        ['SEISMIC', 'Lateral force distribution in buildings follows:', ['Uniform distribution', 'Triangular distribution', 'Parabolic distribution', 'Inverted triangle'], 3, 'Lateral force increases with height.', 'Uniform trap.'],
+        ['SEISMIC', 'Seismic base shear is directly proportional to:', ['Building weight', 'Building height', 'Soil type', 'All of these'], 0, 'VB ∝ W (seismic weight).', 'Height trap.'],
+        ['SEISMIC', 'Soil type A represents:', ['Soft soil', 'Medium soil', 'Hard soil/rock', 'Very soft soil'], 2, 'Type A is rock or hard soil.', 'Soft soil trap.'],
+        ['SEISMIC', 'Maximum spectral acceleration occurs at period:', ['0 seconds', '0.4-0.7 seconds', '1.0 seconds', '2.0 seconds'], 1, 'Peak in medium period range.', 'Zero period trap.'],
+        ['SEISMIC', 'Damping ratio for RC structures is typically:', ['2%', '5%', '7%', '10%'], 1, 'Standard damping = 5% for RC.', 'Higher value trap.'],
+        ['SEISMIC', 'Shear wall should preferably be located:', ['At building periphery', 'At building center', 'Symmetrically about center', 'Anywhere'], 2, 'Symmetric placement reduces torsion.', 'Center-only trap.'],
+        ['SEISMIC', 'Maximum storey drift limit for RC frame building is:', ['0.002h', '0.003h', '0.004h', '0.005h'], 2, 'Drift limit = 0.004 times storey height.', 'Lower limit trap.'],
+        ['SEISMIC', 'Infill walls in seismic design are generally:', ['Ignored', 'Considered as mass only', 'Considered for stiffness', 'Fully integrated'], 1, 'Infills add mass, usually ignored for strength.', 'Stiffness contribution trap.'],
+        ['SEISMIC', 'P-Delta effect becomes significant when:', ['Building is tall', 'Building is slender', 'Both A and B', 'Axial load is high'], 2, 'Second-order effects in tall, slender buildings.', 'Single condition trap.'],
+        ['SEISMIC', 'Capacity design philosophy ensures:', ['Strong column weak beam', 'Weak column strong beam', 'Equal strength', 'Maximum economy'], 0, 'Prevents soft-storey mechanism.', 'Opposite trap.']
+    ];
+
+    // SOM Questions (30)
+    const SOM_Q = [
+        ['SOM', 'Point of contraflexure in a beam is where:', ['Shear is zero', 'Moment is zero', 'Slope is zero', 'Deflection is zero'], 1, 'Bending moment changes sign at contraflexure.', 'Shear confusion.'],
+        ['SOM', 'For a simply supported beam with UDL, maximum bending moment occurs at:', ['Support', 'Quarter span', 'Mid-span', 'Any point'], 2, 'Maximum M at center for simply supported UDL.', 'Quarter-span trap.'],
+        ['SOM', 'Shear force is zero at the point of:', ['Maximum moment', 'Zero moment', 'Maximum slope', 'Zero slope'], 0, 'dM/dx = V, so V=0 where M is max.', 'Moment-zero trap.'],
+        ['SOM', 'A cantilever beam of length L with point load W at free end has maximum moment:', ['WL', 'WL/2', 'WL/4', 'WL/8'], 0, 'Mmax = WL at fixed end.', 'Simply supported confusion.'],
+        ['SOM', 'Degree of static indeterminacy for a fixed beam is:', ['0', '1', '2', '3'], 3, 'Fixed beam: 3 unknown reactions beyond equilibrium.', 'Continuous beam trap.'],
+        ['SOM', 'Degree of kinematic indeterminacy for a fixed beam is:', ['0', '1', '2', '3'], 0, 'No joint displacements/rotations possible.', 'Reaction confusion.'],
+        ['SOM', 'Slope-deflection method is based on:', ['Force method', 'Displacement method', 'Energy method', 'Virtual work'], 1, 'Relates moments to joint rotations.', 'Force method trap.'],
+        ['SOM', 'Moment distribution method is used for:', ['Determinate structures', 'Indeterminate structures', 'Trusses only', 'Cables'], 1, 'Iterative method for continuous beams/frames.', 'Determinate trap.'],
+        ['SOM', 'Distribution factor at a joint is ratio of:', ['Member stiffness to sum of stiffnesses', 'Length to total length', 'Moment to load', 'Support reaction to load'], 0, 'DF = k/Σk at joint.', 'Length ratio trap.'],
+        ['SOM', 'Carry-over factor for prismatic beam is:', ['0', '0.5', '1.0', '-1.0'], 1, 'COF = +0.5 for far end fixed.', 'Zero trap.'],
+        ['SOM', 'Influence line for reaction at a support shows:', ['Variation of reaction with load position', 'Variation of moment', 'Variation of shear', 'Variation of deflection'], 0, 'ILD shows how reaction varies as unit load moves.', 'Moment confusion.'],
+        ['SOM', 'Maxwell\'s reciprocal theorem states:', ['Deflection at A due to load at B = deflection at B due to load at A', 'Force equals reaction', 'Moment equals couple', 'Strain energy is constant'], 0, 'δAB = δBA (linear elastic structures).', 'Symmetry trap.'],
+        ['SOM', 'Virtual work method is based on principle of:', ['Equilibrium', 'Compatibility', 'Energy conservation', 'Virtual displacements'], 3, 'Virtual work = ∫P·δ for equilibrium.', 'Real work trap.'],
+        ['SOM', 'Castigliano\'s first theorem gives:', ['Deflection', 'Slope', 'Reaction', 'Moment'], 0, '∂U/∂P = deflection at P.', 'Second theorem confusion.'],
+        ['SOM', 'Three-hinged arch has degree of indeterminacy:', ['0', '1', '2', '3'], 0, 'Three hinges make it determinate.', 'Two-hinged trap.'],
+        ['SOM', 'Two-hinged arch is indeterminate to degree:', ['0', '1', '2', '3'], 1, 'One redundant (horizontal thrust).', 'Three-hinged confusion.'],
+        ['SOM', 'Horizontal thrust in a three-hinged arch can be found using:', ['Bending moment at crown hinge', 'Shear at supports', 'Deflection', 'Slope'], 0, 'Mcrown = 0 condition gives H.', 'Direct calculation trap.'],
+        ['SOM', 'A cable subjected to UDL takes the shape of:', ['Catenary', 'Parabola', 'Circular arc', 'Straight line'], 1, 'UDL gives parabolic profile.', 'Catenary trap (for self-weight).'],
+        ['SOM', 'Maximum bending moment in a fixed beam with central point load W is:', ['WL/4', 'WL/8', 'WL/12', 'WL/16'], 1, 'Mmax = WL/8 at center and supports.', 'Simply supported value trap.'],
+        ['SOM', 'Shear force diagram for a beam with UDL is:', ['Rectangle', 'Triangle', 'Parabola', 'Straight inclined line'], 3, 'Linear variation of shear under UDL.', 'Parabola trap.'],
+        ['SOM', 'Bending moment diagram for a beam with UDL is:', ['Rectangle', 'Triangle', 'Parabola', 'Straight line'], 2, 'M = ∫V dx gives parabola for linear V.', 'Triangle trap.'],
+        ['SOM', 'Axial force in a truss member is determined by:', ['Method of joints', 'Method of sections', 'Both A and B', 'Moment distribution'], 2, 'Both methods work for trusses.', 'Single method trap.'],
+        ['SOM', 'Zero-force member in a truss can be identified when:', ['Two members meet at unloaded joint', 'Three members meet', 'Four members meet', 'Load is applied'], 0, 'Two non-collinear members at unloaded joint.', 'Loaded joint trap.'],
+        ['SOM', 'Portal method assumes:', ['Shear distribution based on bay width', 'Equal shear in all columns', 'Moment proportional to height', 'Fixed base'], 0, 'Lateral load distributed per tributary width.', 'Equal shear trap.'],
+        ['SOM', 'Cantilever method assumes:', ['Axial stress proportional to distance from centroid', 'Equal axial stress', 'Shear proportional to height', 'Zero moment'], 0, 'Stress ∝ distance from neutral axis.', 'Portal method confusion.'],
+        ['SOM', 'Muller-Breslau principle is used to draw:', ['Bending moment diagram', 'Influence line diagram', 'Shear force diagram', 'Deflection diagram'], 1, 'ILD drawn by removing constraint and applying unit displacement.', 'BMD trap.'],
+        ['SOM', 'For a propped cantilever with UDL, reaction at prop is:', ['wL/2', '3wL/8', '5wL/8', 'wL'], 2, 'Indeterminate: RA = 5wL/8.', 'Simply supported value trap.'],
+        ['SOM', 'Stiffness of a member is defined as:', ['Force to cause unit displacement', 'Displacement due to unit force', 'Moment to cause unit rotation', 'Rotation due to unit moment'], 0, 'k = F/δ.', 'Flexibility trap.'],
+        ['SOM', 'Flexibility coefficient is:', ['Reciprocal of stiffness', 'Equal to stiffness', 'Twice the stiffness', 'Independent of stiffness'], 0, 'f = 1/k.', 'Equal trap.'],
+        ['SOM', 'Betti\'s law is the generalization of:', ['Maxwell\'s reciprocal theorem', 'Castigliano\'s theorem', 'Virtual work', 'Unit load method'], 0, 'Extension of reciprocal theorem to multiple loads.', 'Castigliano trap.']
+    ];
+
+    // GEOTECH Questions (30)
+    const GEOTECH_Q = [
+        ['GEOTECH', 'Water content of soil is defined as ratio of:', ['Weight of water to weight of solids', 'Volume of water to volume of voids', 'Weight of water to total weight', 'Volume of water to total volume'], 0, 'w = Ww/Ws × 100%.', 'Volume ratio trap.'],
+        ['GEOTECH', 'Void ratio is defined as:', ['Volume of voids to volume of solids', 'Volume of voids to total volume', 'Weight of voids to weight of solids', 'Volume of air to volume of voids'], 0, 'e = Vv/Vs.', 'Porosity confusion.'],
+        ['GEOTECH', 'Porosity is defined as:', ['Volume of voids to total volume', 'Volume of voids to volume of solids', 'Volume of air to total volume', 'Volume of water to total volume'], 0, 'n = Vv/V × 100%.', 'Void ratio trap.'],
+        ['GEOTECH', 'Degree of saturation for fully saturated soil is:', ['0%', '50%', '100%', 'Varies'], 2, 'S = 100% when all voids filled with water.', 'Partial saturation trap.'],
+        ['GEOTECH', 'Relationship between void ratio e and porosity n is:', ['e = n/(1-n)', 'n = e/(1+e)', 'e = n/(1+n)', 'n = e/(1-e)'], 1, 'n = e/(1+e).', 'Inverted formula trap.'],
+        ['GEOTECH', 'Atterberg limits are used to classify:', ['Coarse-grained soils', 'Fine-grained soils', 'All soils', 'Organic soils only'], 1, 'Liquid and plastic limits for cohesive soils.', 'All soil trap.'],
+        ['GEOTECH', 'Plasticity index is defined as:', ['LL - PL', 'LL + PL', 'LL / PL', 'PL - SL'], 0, 'PI = LL - PL.', 'Addition trap.'],
+        ['GEOTECH', 'Soil with PI > 35 is classified as:', ['Low plasticity', 'Medium plasticity', 'High plasticity', 'Non-plastic'], 2, 'PI > 35 indicates high plasticity clay.', 'Medium trap.'],
+        ['GEOTECH', 'As per IS classification, soil is gravel when particle size is:', ['4.75 mm to 80 mm', '0.075 mm to 4.75 mm', 'Less than 0.075 mm', 'Greater than 80 mm'], 0, 'Gravel: 4.75-80 mm.', 'Sand range trap.'],
+        ['GEOTECH', 'As per IS classification, soil is sand when particle size is:', ['4.75 mm to 80 mm', '0.075 mm to 4.75 mm', 'Less than 0.075 mm', 'Greater than 80 mm'], 1, 'Sand: 0.075-4.75 mm.', 'Gravel confusion.'],
+        ['GEOTECH', 'Coefficient of permeability has units of:', ['cm/sec', 'cm²/sec', 'sec/cm', 'Dimensionless'], 0, 'k has velocity units (LT⁻¹).', 'Area/time trap.'],
+        ['GEOTECH', 'Darcy\'s law is valid for:', ['Laminar flow only', 'Turbulent flow only', 'All flow conditions', 'No flow'], 0, 'v = ki holds for laminar flow.', 'All flow trap.'],
+        ['GEOTECH', 'Permeability of clay is of the order:', ['10⁻³ cm/s', '10⁻⁵ cm/s', '10⁻⁷ cm/s', '10⁻⁹ cm/s'], 2, 'Clay has very low k ≈ 10⁻⁷ to 10⁻⁹.', 'Higher value trap.'],
+        ['GEOTECH', 'Coefficient of consolidation Cv has units:', ['cm/sec', 'cm²/sec', 'sec', 'Dimensionless'], 1, 'Cv has units of L²T⁻¹.', 'Velocity trap.'],
+        ['GEOTECH', 'Time factor T in consolidation is:', ['Dimensionless', 'Has time units', 'Has length units', 'Depends on soil type'], 0, 'T = Cvt/d² is dimensionless.', 'Time units trap.'],
+        ['GEOTECH', 'Degree of consolidation of 50% corresponds to time factor:', ['T = 0.197', 'T = 0.287', 'T = 0.405', 'T = 0.848'], 0, 'U=50% gives T≈0.197.', 'Higher value trap.'],
+        ['GEOTECH', 'Primary consolidation is due to:', ['Expulsion of pore water', 'Compression of solids', 'Secondary compression', 'Immediate settlement'], 0, 'Primary = dissipation of excess pore pressure.', 'Solid compression trap.'],
+        ['GEOTECH', 'Over-consolidated soil has OCR:', ['< 1', '= 1', '> 1', '= 0'], 2, 'OCR = σp/σo > 1 for OC soil.', 'Equal to 1 trap.'],
+        ['GEOTECH', 'Normally consolidated soil has OCR:', ['< 1', '= 1', '> 1', '= 0'], 1, 'OCR = 1 for NC soil.', 'Greater than 1 trap.'],
+        ['GEOTECH', 'Compression index Cc is slope of:', ['e-log p curve', 'e-p curve', 'log e - log p curve', 'Settlement-time curve'], 0, 'Cc from virgin compression curve.', 'Linear plot trap.'],
+        ['GEOTECH', 'Active earth pressure coefficient Ka for φ=30° is approximately:', ['0.33', '0.5', '1.0', '3.0'], 0, 'Ka = tan²(45-φ/2) ≈ 0.33.', 'Kp confusion.'],
+        ['GEOTECH', 'Passive earth pressure coefficient Kp for φ=30° is approximately:', ['0.33', '0.5', '1.0', '3.0'], 3, 'Kp = tan²(45+φ/2) ≈ 3.0.', 'Ka confusion.'],
+        ['GEOTECH', 'Rankine\'s theory assumes:', ['Cohesionless soil and smooth wall', 'Cohesive soil', 'Rough wall', 'Surcharge load'], 0, 'Classical theory for c=0, vertical wall.', 'Cohesion trap.'],
+        ['GEOTECH', 'Coulomb\'s theory considers:', ['Wall friction', 'Cohesion', 'Pore pressure', 'All of these'], 0, 'Accounts for wall-soil friction angle δ.', 'Cohesion trap.'],
+        ['GEOTECH', 'Safe bearing capacity is gross bearing capacity divided by:', ['Factor of safety', 'Area of footing', 'Depth of footing', 'Unit weight'], 0, 'Safe = Ultimate / FOS.', 'Area trap.'],
+        ['GEOTECH', 'Ultimate bearing capacity of soil increases with:', ['Depth of foundation', 'Soil friction angle', 'Both A and B', 'Neither'], 2, 'qu increases with D and φ.', 'Single factor trap.'],
+        ['GEOTECH', 'Terzaghi\'s bearing capacity equation has terms for:', ['Cohesion, surcharge, and self-weight', 'Cohesion only', 'Friction only', 'Depth only'], 0, 'qu = cNc + γDNq + 0.5γBNγ.', 'Single term trap.'],
+        ['GEOTECH', 'For purely cohesive soil (φ=0), bearing capacity depends on:', ['c only', 'γ only', 'Both c and γ', 'Neither'], 0, 'qu = cNc (for φ=0, Nq=1, Nγ=0).', 'All terms trap.'],
+        ['GEOTECH', 'Standard penetration test (SPT) measures:', ['N-value (blows/30 cm)', 'Shear strength directly', 'Permeability', 'Consolidation'], 0, 'SPT gives N value for correlation.', 'Direct strength trap.'],
+        ['GEOTECH', 'Relative density of sand can be estimated from:', ['SPT N-value', 'Atterberg limits', 'Consolidation test', 'Permeability'], 0, 'Dr correlates with N value.', 'Atterberg trap.']
+    ];
+
+    // FM Questions (30)
+    const FM_Q = [
+        ['FM', 'Pressure at a point in a static fluid is:', ['Same in all directions', 'Different in different directions', 'Maximum in vertical direction', 'Zero'], 0, 'Pascal\'s law: pressure is isotropic.', 'Direction-dependent trap.'],
+        ['FM', 'Pressure intensity at any point in a fluid at rest varies:', ['Linearly with depth', 'Parabolically with depth', 'Exponentially with depth', 'Inversely with depth'], 0, 'p = ρgh (linear).', 'Non-linear trap.'],
+        ['FM', 'Buoyant force on a submerged body equals:', ['Weight of body', 'Weight of fluid displaced', 'Volume of body', 'Density of fluid'], 1, 'Archimedes principle.', 'Body weight trap.'],
+        ['FM', 'For a floating body in equilibrium:', ['Weight = Buoyancy', 'Volume displaced = Total volume', 'Metacenter above CG', 'Pressure is constant'], 0, 'W = Fb for equilibrium.', 'Volume trap.'],
+        ['FM', 'Metacentric height is distance between:', ['Center of gravity and metacenter', 'Center of buoyancy and metacenter', 'Waterline and CG', 'Free surface and metacenter'], 0, 'GM = distance from G to M.', 'CB confusion.'],
+        ['FM', 'For stable equilibrium of a floating body:', ['M above G', 'G above M', 'M and G coincide', 'B above G'], 0, 'Positive GM ensures stability.', 'Inverted trap.'],
+        ['FM', 'Reynolds number is ratio of:', ['Inertia force to viscous force', 'Pressure force to inertia force', 'Gravity force to viscous force', 'Surface tension to gravity'], 0, 'Re = ρVL/μ.', 'Pressure force trap.'],
+        ['FM', 'Laminar flow occurs when Reynolds number is:', ['< 2000', '2000-4000', '> 4000', '> 10000'], 0, 'Re < 2000 for laminar flow in pipes.', 'Turbulent range trap.'],
+        ['FM', 'Froude number is ratio of:', ['Inertia force to gravity force', 'Inertia force to viscous force', 'Pressure force to gravity force', 'Viscous force to gravity force'], 0, 'Fr = V/√(gL).', 'Viscous trap.'],
+        ['FM', 'Euler number is ratio of:', ['Pressure force to inertia force', 'Inertia force to pressure force', 'Gravity force to inertia force', 'Viscous force to pressure force'], 0, 'Eu = p/(ρV²).', 'Inverted trap.'],
+        ['FM', 'Weber number is ratio of:', ['Inertia force to surface tension force', 'Surface tension to gravity force', 'Viscous force to surface tension', 'Pressure force to surface tension'], 0, 'We = ρV²L/σ.', 'Gravity trap.'],
+        ['FM', 'Mach number is ratio of:', ['Flow velocity to sonic velocity', 'Sonic velocity to flow velocity', 'Velocity to gravity', 'Pressure to velocity'], 0, 'Ma = V/c.', 'Inverted trap.'],
+        ['FM', 'Continuity equation for incompressible flow states:', ['A₁V₁ = A₂V₂', 'A₁/V₁ = A₂/V₂', 'ρ₁V₁ = ρ₂V₂', 'p₁ + ρV₁² = p₂ + ρV₂²'], 0, 'Mass conservation: Q = AV = constant.', 'Bernoulli confusion.'],
+        ['FM', 'Bernoulli\'s equation is valid when flow is:', ['Turbulent', 'Viscous', 'Steady and inviscid', 'Unsteady'], 2, 'Assumes steady, incompressible, inviscid flow.', 'Viscosity ignored trap.'],
+        ['FM', 'Hydraulic gradient line represents:', ['Total head', 'Velocity head', 'Pressure head', 'Piezometric head'], 3, 'HGL = pressure head + datum head.', 'Energy line confusion.'],
+        ['FM', 'Energy grade line lies above HGL by an amount equal to:', ['Pressure head', 'Velocity head', 'Datum head', 'Losses'], 1, 'Difference is velocity head.', 'Pressure trap.'],
+        ['FM', 'Which device measures discharge in a pipe using pressure difference?', ['Venturimeter', 'Orifice meter', 'Pitot tube', 'Rotameter'], 0, 'Venturi uses Bernoulli principle.', 'Orifice similarity trap.'],
+        ['FM', 'Coefficient of discharge for venturimeter is approximately:', ['0.6', '0.8', '0.98', '1.0'], 2, 'Venturi Cd ≈ 0.98.', 'Orifice Cd confusion.'],
+        ['FM', 'Boundary layer thickness is defined where velocity equals:', ['90%', '95%', '99%', '100%'], 2, 'δ at 99% of free stream velocity.', '95% trap.'],
+        ['FM', 'Drag force on a body in fluid depends on:', ['Velocity²', 'Velocity', 'Area', 'All of these'], 3, 'Fd ∝ ρAV².', 'Single-parameter trap.'],
+        ['FM', 'Which flow net property is always true?', ['Flow lines intersect', 'Equipotential lines intersect', 'Flow lines orthogonal to equipotential lines', 'Spacing is equal'], 2, 'They intersect at right angles.', 'Intersection confusion.'],
+        ['FM', 'Seepage force per unit volume is proportional to:', ['Hydraulic gradient', 'Permeability', 'Velocity', 'Void ratio'], 0, 'Fs ∝ iγw.', 'Permeability trap.'],
+        ['FM', 'Most accurate device for low discharge measurement is:', ['Venturimeter', 'Orifice meter', 'Weir', 'Pitot tube'], 2, 'Weirs accurate for low flows.', 'Pipe device trap.'],
+        ['FM', 'Flow over a sharp-crested weir is assumed to be:', ['Laminar', 'Uniform', 'Critical', 'Turbulent'], 2, 'Flow becomes critical at crest.', 'Laminar confusion.'],
+        ['FM', 'Specific energy in open channel flow is minimum at:', ['Subcritical flow', 'Supercritical flow', 'Critical flow', 'Uniform flow'], 2, 'Minimum specific energy at critical depth.', 'Regime confusion.'],
+        ['FM', 'Froude number is significant in:', ['Pipe flow', 'Viscous flow', 'Open channel flow', 'Compressible flow'], 2, 'Gravity dominates in open channels.', 'Reynolds trap.'],
+        ['FM', 'Hydraulic jump occurs when flow changes from:', ['Subcritical to critical', 'Supercritical to subcritical', 'Laminar to turbulent', 'Uniform to non-uniform'], 1, 'Energy dissipation phenomenon.', 'Flow regime trap.'],
+        ['FM', 'Most energy is lost in hydraulic jump due to:', ['Turbulence', 'Viscosity', 'Surface tension', 'Cavitation'], 0, 'Intense turbulence dissipates energy.', 'Viscosity trap.'],
+        ['FM', 'Chezy\'s formula is used to compute:', ['Pipe discharge', 'Open channel velocity', 'Head loss', 'Shear stress'], 1, 'V = C√(RS).', 'Pipe flow confusion.'],
+        ['FM', 'Manning\'s roughness coefficient depends mainly on:', ['Slope', 'Velocity', 'Surface roughness', 'Depth'], 2, 'Represents channel roughness.', 'Slope trap.']
+    ];
+
+    // IRC Questions (20)
+    const IRC_Q = [
+        ['IRC', 'Purpose of camber in highways is to:', ['Increase speed', 'Improve comfort', 'Drain surface water', 'Reduce pavement thickness'], 2, 'Camber facilitates quick drainage of rainwater.', 'Speed/comfort are indirect effects.'],
+        ['IRC', 'As per IRC, design speed of a highway mainly depends on:', ['Traffic volume', 'Terrain', 'Pavement type', 'Right of way'], 1, 'Design speed is governed by terrain classification.', 'Traffic volume trap.'],
+        ['IRC', 'Stopping sight distance is the sum of:', ['Lag distance and braking distance', 'Reaction distance and braking distance', 'Overtaking distance and braking distance', 'Visibility distance and braking distance'], 1, 'SSD = perception-reaction distance + braking distance.', 'Lag word confusion.'],
+        ['IRC', 'Overtaking sight distance is provided on:', ['All roads', 'Two-lane roads', 'Multi-lane roads', 'Urban streets'], 1, 'OSD is critical for two-lane undivided roads.', 'Multilane trap.'],
+        ['IRC', 'The ruling gradient is the gradient which:', ['Should not be exceeded', 'Is desirable under normal conditions', 'Is used only in plains', 'Is maximum gradient'], 1, 'Ruling gradient is normally adopted gradient.', 'Limiting gradient confusion.'],
+        ['IRC', 'The steepest gradient allowed under exceptional conditions is called:', ['Ruling gradient', 'Limiting gradient', 'Exceptional gradient', 'Minimum gradient'], 2, 'Exceptional gradient is used for short lengths only.', 'Limiting vs exceptional trap.'],
+        ['IRC', 'Superelevation is provided to counteract:', ['Centrifugal force', 'Frictional force', 'Braking force', 'Wind force'], 0, 'Superelevation balances centrifugal force on curves.', 'Friction-only trap.'],
+        ['IRC', 'Maximum value of superelevation as per IRC is:', ['1 in 10', '1 in 12', '1 in 15', '1 in 20'], 0, 'Maximum e = 0.1 (1 in 10).', 'Lower values trap.'],
+        ['IRC', 'Extra widening of pavement at curves is required due to:', ['Skidding', 'Overhang of vehicles', 'Increase in speed', 'Superelevation'], 1, 'Vehicle overhang and off-tracking cause widening.', 'Speed trap.'],
+        ['IRC', 'Setback distance is related to:', ['Stopping sight distance', 'Overtaking sight distance', 'Intersection sight distance', 'Headlight sight distance'], 1, 'Setback ensures adequate OSD on horizontal curves.', 'SSD confusion.'],
+        ['IRC', 'For plain and rolling terrain, camber recommended for bituminous roads is about:', ['1 in 20', '1 in 40', '1 in 60', '1 in 100'], 1, 'Typical camber for BT roads ≈ 2.5%.', 'Concrete road value trap.'],
+        ['IRC', 'PCU stands for:', ['Passenger Car Unit', 'Permanent Car Unit', 'Peak Car Unit', 'Primary Car Unit'], 0, 'PCU converts mixed traffic to equivalent cars.', 'Easy elimination.'],
+        ['IRC', 'Design of flexible pavement is based on:', ['CBR value', 'Traffic volume only', 'Wheel load only', 'Subgrade modulus'], 0, 'IRC flexible pavement design uses CBR method.', 'Rigid pavement trap.'],
+        ['IRC', 'Critical condition for flexible pavement design is:', ['High tyre pressure', 'High temperature', 'Repetition of wheel loads', 'Single heavy load'], 2, 'Fatigue due to repeated loads governs design.', 'Single-load trap.'],
+        ['IRC', 'Rigid pavement design is based on theory given by:', ['Westergaard', 'Boussinesq', 'Rankine', 'Coulomb'], 0, 'IRC rigid pavement uses Westergaard theory.', 'Soil mechanics names trap.'],
+        ['IRC', 'Load transfer across joints in concrete pavements is achieved using:', ['Tie bars', 'Dowel bars', 'Reinforcement mesh', 'Aggregate interlock only'], 1, 'Dowel bars transfer load across expansion joints.', 'Tie bar confusion.'],
+        ['IRC', 'Skid resistance of pavement mainly depends on:', ['Tyre pressure', 'Surface texture', 'Pavement thickness', 'Subgrade strength'], 1, 'Surface texture controls skid resistance.', 'Thickness trap.'],
+        ['IRC', 'Cross slope provided on straight roads is known as:', ['Camber', 'Superelevation', 'Gradient', 'Crown'], 0, 'Camber is cross slope on straight sections.', 'Curve-only confusion.'],
+        ['IRC', 'Wearing course in flexible pavement primarily resists:', ['Traffic load', 'Weathering', 'Shear from tyres', 'All of these'], 3, 'Wearing course handles traffic and environmental effects.', 'Single-function trap.'],
+        ['IRC', 'The primary objective of highway geometric design is to ensure:', ['Economy', 'Safety and comfort', 'Minimum land acquisition', 'Maximum speed'], 1, 'Safety and comfort are primary goals.', 'Cost-only trap.']
+    ];
+
+    // Build master question bank
+    [RCC_Q, STEEL_Q, SEISMIC_Q, SOM_Q, GEOTECH_Q, FM_Q, IRC_Q].forEach(function(sec) {
+        sec.forEach(function(x) {
+            add(x[0], x[1], x[2], x[3], x[4], x[5]);
+        });
+    });
+
+    console.log('Total Questions:', Q.length);
+
+    // App state
+    var pool = Q;
+    var current = null;
+    var userAnswer = null;
+    var stats = {
+        attempted: 0,
+        correct: 0,
+        wrong: 0
+    };
+
+    // DOM elements
+    var topicSelect = document.getElementById('topic');
+    var nextBtn = document.getElementById('nextBtn');
+    var showBtn = document.getElementById('showBtn');
+    var resetBtn = document.getElementById('resetBtn');
+    var qmeta = document.getElementById('qmeta');
+    var qtext = document.getElementById('qtext');
+    var opts = document.getElementById('opts');
+    var res = document.getElementById('res');
+    var totalQ = document.getElementById('totalQ');
+    var attemptedSpan = document.getElementById('attempted');
+    var correctSpan = document.getElementById('correct');
+    var wrongSpan = document.getElementById('wrong');
+    var accuracySpan = document.getElementById('accuracy');
+
+    // Initialize
+    totalQ.textContent = Q.length;
+    updateStats();
+
+    // Event listeners
+    nextBtn.addEventListener('click', nextQ);
+    showBtn.addEventListener('click', showAns);
+    resetBtn.addEventListener('click', resetStats);
+
+    // Functions
+    function updateStats() {
+        attemptedSpan.textContent = stats.attempted;
+        correctSpan.textContent = stats.correct;
+        wrongSpan.textContent = stats.wrong;
+        var accuracy = stats.attempted > 0 ? Math.round((stats.correct / stats.attempted) * 100) : 0;
+        accuracySpan.textContent = accuracy + '%';
+    }
+
+    function resetStats() {
+        if (confirm('Are you sure you want to reset all statistics?')) {
+            stats = { attempted: 0, correct: 0, wrong: 0 };
+            updateStats();
+        }
+    }
+
+    function nextQ() {
+        var t = topicSelect.value;
+        pool = (t === 'ALL') ? Q : Q.filter(function(x) { return x.topic === t; });
+        
+        if (pool.length === 0) {
+            alert('No questions available for selected topic!');
+            return;
+        }
+        
+        current = pool[Math.floor(Math.random() * pool.length)];
+        userAnswer = null;
+        
+        qmeta.textContent = 'Q' + current.id + ' | ' + current.topic + ' | PYQ Pattern';
+        qtext.textContent = current.q;
+        
+        opts.innerHTML = '';
+        current.opts.forEach(function(x, idx) {
+            var l = document.createElement('label');
+            l.textContent = x;
+            l.setAttribute('data-index', idx);
+            l.addEventListener('click', function() {
+                var labels = opts.querySelectorAll('label');
+                labels.forEach(function(label) {
+                    label.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                userAnswer = parseInt(this.getAttribute('data-index'));
+            });
+            opts.appendChild(l);
+        });
+        
+        res.style.display = 'none';
+    }
+
+    function showAns() {
+        if (!current) {
+            alert('Please load a question first!');
+            return;
+        }
+        
+        res.style.display = 'block';
+        
+        if (userAnswer !== null) {
+            stats.attempted++;
+            if (userAnswer === current.ans) {
+                stats.correct++;
+                res.className = 'result correct';
+                res.innerHTML = '<b>✅ Correct Answer!</b> ' + current.opts[current.ans] + 
+                    '<div class="why"><b>Why:</b> ' + current.why + '</div>' +
+                    '<div class="trick"><b>UPSC Trick:</b> ' + current.trick + '</div>';
+            } else {
+                stats.wrong++;
+                res.className = 'result incorrect';
+                res.innerHTML = '<b>❌ Incorrect!</b> Your answer: ' + current.opts[userAnswer] + 
+                    '<br><b>Correct Answer:</b> ' + current.opts[current.ans] +
+                    '<div class="why"><b>Why:</b> ' + current.why + '</div>' +
+                    '<div class="trick"><b>UPSC Trick:</b> ' + current.trick + '</div>';
+            }
+            updateStats();
+        } else {
+            res.className = 'result correct';
+            res.innerHTML = '<b>Correct Answer:</b> ' + current.opts[current.ans] +
+                '<div class="why"><b>Why:</b> ' + current.why + '</div>' +
+                '<div class="trick"><b>UPSC Trick:</b> ' + current.trick + '</div>';
+        }
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'n' || e.key === 'N') {
+            nextQ();
+        } else if (e.key === 's' || e.key === 'S') {
+            showAns();
+        } else if (e.key >= '1' && e.key <= '4' && current) {
+            var labels = opts.querySelectorAll('label');
+            var idx = parseInt(e.key) - 1;
+            if (labels[idx]) {
+                labels[idx].click();
+            }
+        }
+    });
+
+})();
+</script>
+</body>
+</html>
